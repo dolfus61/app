@@ -152,7 +152,7 @@ def display_table_image(font_family, numBalls, numBoxes):
 # Streamlit app
 st.sidebar.header('Select #Balls and #Boxes')
 
-numBalls = st.sidebar.number_input('Enter the number of balls', min_value=4, step=1, value=6, max_value=10)
+numBalls = st.sidebar.number_input('Enter the number of balls', min_value=5, step=1, value=6, max_value=10)
 numBoxes = st.sidebar.number_input('Enter the number of boxes', min_value=2, step=1, value=3, max_value=4)
 
 st.sidebar.header('Select Font Family')
