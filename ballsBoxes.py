@@ -4,6 +4,8 @@ import pandas as pd
 from math import factorial
 from PIL import Image
 
+st. set_page_config(layout="wide")
+
 
 
 # Function to generate and display the table image
