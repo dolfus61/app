@@ -144,7 +144,7 @@ def display_table_image(font_family, numBalls, numBoxes):
     plt.tight_layout()
 
     # Save the table as a high-quality image (PNG or PDF)
-    plt.savefig('table_image.png', dpi=300, bbox_inches='tight')  # Adjust DPI as needed
+    plt.savefig('table_image.png', dpi=200, bbox_inches='tight')  # Adjust DPI as needed
 
     # Display the high-quality image
     st.image('table_image.png')
