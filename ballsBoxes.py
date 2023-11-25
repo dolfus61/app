@@ -116,7 +116,7 @@ def display_table_image(font_family, numBalls, numBoxes):
         cell_height = 0.5
 
     # Render LaTeX in DataFrame using matplotlib with increased cell padding
-    plt.figure(figsize=(num_cols * 1.5, num_rows * 2))  # Adjust figure size based on rows and columns
+    plt.figure(figsize=(6,8))  # Adjust figure size based on rows and columns
     column_widths = [0.65, 0.8, 0.65, 0.65, 0.65, 0.65, 0.6]
 
     # Create lighter cell colors to introduce space illusion
