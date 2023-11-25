@@ -72,7 +72,7 @@ def display_table_image(font_family, numBalls, numBoxes):
             return rf"$\frac{{{a}}}{{{b}}}$"
         
             
-    columns = ['Distribution(II)','Calculation(DD)','Count(DD)','Calculation(DI)','Count(DI)','Calculation(ID)','Count(ID)']
+    columns = ['Distribution(II)','Calc.(DD)','Count(DD)','Calc.(DI)','Count(DI)','Calc.(ID)','Count(ID)']
     data = {i: [] for i in columns}
 
     rowCount = 0
@@ -85,9 +85,9 @@ def display_table_image(font_family, numBalls, numBoxes):
         num_permutations *= factorial(sum(freq)) // prod(factorial(x) for x in freq if x > 1)
         
         data['Distribution(II)'].append(generate_equation(theRow,1))
-        data['Calculation(DD)'].append(generate_equation(theRow,2))
+        data['Calc.(DD)'].append(generate_equation(theRow,2))
         data['Count(DD)'].append(num_permutations)
-        data['Calculation(DI)'].append(generate_equation(theRow,3))
+        data['Calc.(DI)'].append(generate_equation(theRow,3))
         
         num_permutations = factorial(sum(theRow)) // prod(factorial(x) for x in theRow)
         freq = [theRow.count(f) for f in set(theRow)]
@@ -95,7 +95,7 @@ def display_table_image(font_family, numBalls, numBoxes):
         
         data['Count(DI)'].append(num_permutations)
         
-        data['Calculation(ID)'].append(generate_equation(theRow,4))
+        data['Calc.(ID)'].append(generate_equation(theRow,4))
         
         freq = [theRow.count(f) for f in set(theRow)]
         num_permutations = factorial(sum(freq)) // prod(factorial(x) for x in freq if x > 1)    
