@@ -4,7 +4,7 @@ import pandas as pd
 from math import factorial
 from PIL import Image
 
-st.set_page_config(layout="wide")
+# st.set_page_config(layout="wide")
 
 
 
