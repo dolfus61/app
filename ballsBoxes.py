@@ -122,7 +122,7 @@ def display_table_image(font_family, numBalls, numBoxes):
     # Create lighter cell colors to introduce space illusion
     cell_colors = [['white'] * num_cols for _ in range(num_rows)]
 
-    table = plt.table(cellText=df.values, colLabels=df.columns, loc='right', cellLoc='right',
+    table = plt.table(cellText=df.values, colLabels=df.columns, loc='center', cellLoc='center',
                       cellColours=cell_colors,colWidths=column_widths)
 
     # Adjust cell dimensions
