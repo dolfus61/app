@@ -3,10 +3,102 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from math import factorial
 from PIL import Image
+from itertools import permutations
 
-# st.set_page_config(layout="wide")
+st.markdown('''
+<style>
+.katex-html {
+    text-align: left;
+}
+</style>''',
+unsafe_allow_html=True
+)
 
 
+def description(x):
+    def uniquePermutations(x):
+        unique_perms = []
+        seen = set()
+
+        # Generate permutations and filter out duplicates
+        for perm in permutations(sorted(x, reverse=True)):
+            if perm not in seen:
+                unique_perms.append(perm)
+                seen.add(perm)
+
+        return sorted(unique_perms, key=lambda r: r[0], reverse=True)
+
+    theString = ''
+
+    def generate_statement(x):
+        total_balls = sum(x)
+        boxes = len(x)
+
+        statement = f"There are a total of {total_balls} balls. We want to place "
+        for i in range(boxes):
+            ball_word = 'ball' if x[i] == 1 else 'balls'
+            statement += f"{x[i]} {ball_word} in Box {i+1}"
+            if i < boxes - 1:
+                statement += ", "
+            else:
+                statement += "."
+
+        statement = f"\\text{{{statement}}}"
+        return statement
+
+
+    def binom_result(x):
+        output = []
+        total = sum(x)
+        csum = total
+        for element in x:
+            output.append(csum)
+            csum -= element
+        return output
+
+    def combination_str(x):
+        p = sorted(x, reverse=True)
+        q = binom_result(p)
+
+        freq = [x.count(f) for f in set(x)]
+        print(freq)
+        a = str(sum(freq))+'!'
+        if all(val==1 for val in freq):
+            freqString =  f"{{{a}}}"
+        else:
+            b = '!'.join(str(l) for l in freq if l > 1)+'!'
+            freqString =  f"\\frac{{{a}}}{{{b}}}"
+
+        num_ways = ''
+        for k in range(len(p)):
+            if p[k]>1:
+                if q[k]>p[k]:
+                    num_ways += f"\\binom{{{q[k]}}}{{{p[k]}}}"
+            else:
+                if q[k]>1:
+                    num_ways += f"\\cdot{{{q[k]}}}"
+        theString = generate_statement(p) + f"\\\\ \\text{{This can be done in}}" + num_ways + f"\\text{{ ways.}}"
+        theString += f"\\\\ \\text{{The number of ways to arrange (}}"\
+        +', '.join([str(t) for t in p])+f"\\text{{)}}"+f"\\text{{ is }}"\
+        +freqString
+
+        for perm in uniquePermutations(x):
+            permutation_string = ''
+            for k, p in enumerate(perm,1):
+                permutation_string += f"\\quad{{{p}}}\\rightarrow\\text{{B}}{{{k}}}"
+            theString += f"\\\\ {permutation_string}"
+        theString += f"\\\\ \\text{{So balls can be placed in }} {{{len(x)}}} \\text{{ boxes in }}" + num_ways\
+        + f"\\cdot{{{freqString}}}" +f"\\text{{ ways.}}"
+
+        return theString.strip()  # Remove trailing space
+
+    # Example values to generate the LaTeX string
+    
+
+    # Generating the LaTeX string with combinations
+    latex_string = combination_str(x)
+    
+    return latex_string
 
 # Function to generate and display the table image
 def prod(iterable):
@@ -74,7 +166,7 @@ def display_table_image(font_family, numBalls, numBoxes):
             return rf"$\frac{{{a}}}{{{b}}}$"
         
             
-    columns = ['Distribution(II)','Calc.(DD)','Count(DD)','Calc.(DI)','Count(DI)','Calc.(ID)','Count(ID)']
+    columns = ['Distribution(II)','Calculation(DD)','Count(DD)','Calculation(DI)','Count(DI)','Calculation(ID)','Count(ID)']
     data = {i: [] for i in columns}
 
     rowCount = 0
@@ -87,9 +179,9 @@ def display_table_image(font_family, numBalls, numBoxes):
         num_permutations *= factorial(sum(freq)) // prod(factorial(x) for x in freq if x > 1)
         
         data['Distribution(II)'].append(generate_equation(theRow,1))
-        data['Calc.(DD)'].append(generate_equation(theRow,2))
+        data['Calculation(DD)'].append(generate_equation(theRow,2))
         data['Count(DD)'].append(num_permutations)
-        data['Calc.(DI)'].append(generate_equation(theRow,3))
+        data['Calculation(DI)'].append(generate_equation(theRow,3))
         
         num_permutations = factorial(sum(theRow)) // prod(factorial(x) for x in theRow)
         freq = [theRow.count(f) for f in set(theRow)]
@@ -97,7 +189,7 @@ def display_table_image(font_family, numBalls, numBoxes):
         
         data['Count(DI)'].append(num_permutations)
         
-        data['Calc.(ID)'].append(generate_equation(theRow,4))
+        data['Calculation(ID)'].append(generate_equation(theRow,4))
         
         freq = [theRow.count(f) for f in set(theRow)]
         num_permutations = factorial(sum(freq)) // prod(factorial(x) for x in freq if x > 1)    
@@ -118,8 +210,8 @@ def display_table_image(font_family, numBalls, numBoxes):
         cell_height = 0.5
 
     # Render LaTeX in DataFrame using matplotlib with increased cell padding
-    plt.figure(figsize=(9,12))  # Adjust figure size based on rows and columns
-    column_widths = [0.8, 0.65, 0.6, 0.65, 0.6, 0.65, 0.6]
+    plt.figure(figsize=(num_cols * 1.5, num_rows * 2))  # Adjust figure size based on rows and columns
+    column_widths = [0.6, 0.8, 0.5, 0.6, 0.5, 0.6, 0.5]
 
     # Create lighter cell colors to introduce space illusion
     cell_colors = [['white'] * num_cols for _ in range(num_rows)]
@@ -146,15 +238,15 @@ def display_table_image(font_family, numBalls, numBoxes):
     plt.tight_layout()
 
     # Save the table as a high-quality image (PNG or PDF)
-    plt.savefig('table_image.png', dpi=200, bbox_inches='tight')  # Adjust DPI as needed
+    plt.savefig('table_image.png', dpi=300, bbox_inches='tight')  # Adjust DPI as needed
 
     # Display the high-quality image
     st.image('table_image.png')
 
 # Streamlit app
-st.sidebar.header('Select #Balls and #Boxes')
+st.sidebar.header('Select Table Dimensions')
 
-numBalls = st.sidebar.number_input('Enter the number of balls', min_value=5, step=1, value=6, max_value=10)
+numBalls = st.sidebar.number_input('Enter the number of balls', min_value=4, step=1, value=6, max_value=10)
 numBoxes = st.sidebar.number_input('Enter the number of boxes', min_value=2, step=1, value=3, max_value=4)
 
 st.sidebar.header('Select Font Family')
@@ -164,3 +256,8 @@ selected_font = st.sidebar.selectbox('Choose a font', ['Arial', 'Helvetica', 'Ro
 # Button to display the table image when clicked
 if st.sidebar.button('Display Table'):
     display_table_image(selected_font, numBalls, numBoxes)
+    st.write(f"# Distribution of {numBalls} distinct balls into {numBoxes} distinct boxes")
+    for count_case, case in enumerate(partitions(numBalls,numBoxes)):
+        case_number = f"Case - {count_case + 1:02}"
+        st.write(f"## {case_number}")
+        st.latex(description(case))
