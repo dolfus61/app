@@ -4,6 +4,9 @@ import pandas as pd
 from math import factorial
 from PIL import Image
 from itertools import permutations
+import base64
+
+st.set_page_config(layout="wide")
 
 st.markdown('''
 <style>
@@ -16,6 +19,9 @@ unsafe_allow_html=True
 
 
 def description(x):
+    
+    theString = ''
+    
     def uniquePermutations(x):
         unique_perms = []
         seen = set()
@@ -28,7 +34,6 @@ def description(x):
 
         return sorted(unique_perms, key=lambda r: r[0], reverse=True)
 
-    theString = ''
 
     def generate_statement(x):
         total_balls = sum(x)
@@ -81,21 +86,12 @@ def description(x):
         theString += f"\\\\ \\text{{The number of ways to arrange (}}"\
         +', '.join([str(t) for t in p])+f"\\text{{)}}"+f"\\text{{ is }}"\
         +freqString
-
-        for perm in uniquePermutations(x):
-            permutation_string = ''
-            for k, p in enumerate(perm,1):
-                permutation_string += f"\\quad{{{p}}}\\rightarrow\\text{{B}}{{{k}}}"
-            theString += f"\\\\ {permutation_string}"
+        
         theString += f"\\\\ \\text{{So balls can be placed in }} {{{len(x)}}} \\text{{ boxes in }}" + num_ways\
         + f"\\cdot{{{freqString}}}" +f"\\text{{ ways.}}"
 
         return theString.strip()  # Remove trailing space
 
-    # Example values to generate the LaTeX string
-    
-
-    # Generating the LaTeX string with combinations
     latex_string = combination_str(x)
     
     return latex_string
@@ -123,140 +119,94 @@ def partitions(n, k):
     generate_partitions(0, [])
     return partitions
 
-def display_table_image(font_family, numBalls, numBoxes):
-    
+# # Streamlit app
+st.sidebar.header('Select Number of Balls and Boxes')
 
-    result = partitions(numBalls, numBoxes)
-    
-    num_rows = len(result)
-    num_cols = 7
-
-    def generate_equation(x,y):
-        if y == 1:
-            theString = '+'.join(str(val) for val in x)
-            return rf"${theString}$"
-        
-        if y == 2:
-            a = str(sum(x))+'!'
-            b = '!'.join(str(l) for l in x if l > 1)+'!'
-            freq = [x.count(f) for f in set(x)]
-            if all(val==1 for val in freq):
-                return rf"$\frac{{{a}}}{{{b}}}\cdot{sum(freq)}!$"
-            else:
-                c = '!'.join(str(l) for l in freq if l > 1)+'!'
-                return rf"$\frac{{{a}}}{{{b}}}\cdot\frac{{{sum(freq)}!}}{{{c}}}$"
-        
-        if y == 3:
-            freq = [x.count(f) for f in set(x)]
-            a = str(sum(x))+'!'
-            b = '!'.join(str(l) for l in x if l > 1)+'!'
-            if all(val==1 for val in freq):
-                return rf"$\frac{{{a}}}{{{b}}}$"
-            else:
-                c = b + '!'.join(str(l) for l in freq if l > 1)+'!'
-                return rf"$\frac{{{a}}}{{{c}}}$"
-            
-        if y == 4:
-            freq = [x.count(f) for f in set(x)]
-            a = str(sum(freq))+'!'
-            if all(val==1 for val in freq):
-                return rf"${a}$"
-            else:
-                b = '!'.join(str(l) for l in freq if l > 1)+'!'
-            return rf"$\frac{{{a}}}{{{b}}}$"
-        
-            
-    columns = ['Distribution(II)','Calc.(DD)','Count(DD)','Calc.(DI)','Count(DI)','Calc.(ID)','Count(ID)']
-    data = {i: [] for i in columns}
-
-    rowCount = 0
-    for rowCount in range(0,num_rows):
-        
-        theRow = result[rowCount]
-        
-        num_permutations = factorial(sum(theRow)) // prod(factorial(x) for x in theRow)
-        freq = [theRow.count(f) for f in set(theRow)]
-        num_permutations *= factorial(sum(freq)) // prod(factorial(x) for x in freq if x > 1)
-        
-        data['Distribution(II)'].append(generate_equation(theRow,1))
-        data['Calc.(DD)'].append(generate_equation(theRow,2))
-        data['Count(DD)'].append(num_permutations)
-        data['Calc.(DI)'].append(generate_equation(theRow,3))
-        
-        num_permutations = factorial(sum(theRow)) // prod(factorial(x) for x in theRow)
-        freq = [theRow.count(f) for f in set(theRow)]
-        num_permutations = num_permutations // prod(factorial(x) for x in freq if x > 1)
-        
-        data['Count(DI)'].append(num_permutations)
-        
-        data['Calc.(ID)'].append(generate_equation(theRow,4))
-        
-        freq = [theRow.count(f) for f in set(theRow)]
-        num_permutations = factorial(sum(freq)) // prod(factorial(x) for x in freq if x > 1)    
-        data['Count(ID)'].append(num_permutations)
-
-    # Create DataFrame with specified number of rows and columns
-    df = pd.DataFrame(data)
-
-    # Use the selected font family
-    plt.rcParams['mathtext.fontset'] = 'custom'
-    plt.rcParams['font.family'] = font_family
-
-    # Adjust font size and cell dimensions based on rows and columns
-    font_size   =   72
-    if num_rows>6:
-        cell_height = 0.15
-    else:
-        cell_height = 0.5
-
-    plt.figure(figsize=(9,12))
-    column_widths = [0.8, 0.65, 0.6, 0.65, 0.6, 0.65, 0.6]
-
-    # Create lighter cell colors to introduce space illusion
-    cell_colors = [['white'] * num_cols for _ in range(num_rows)]
-
-    table = plt.table(cellText=df.values, colLabels=df.columns, loc='center', cellLoc='center',
-                      cellColours=cell_colors,colWidths=column_widths)
-
-    # Adjust cell dimensions
-    cellDict = table.get_celld()
-    for key in cellDict:
-        cellDict[key].set_height(cell_height)  # Set cell height
-        cellDict[key].set_text_props(color='black')# Set text size and color
-        if key[1] == 1:
-            cellDict[key].set_text_props(color='blue')
-        if key[1] == 3:
-            cellDict[key].set_text_props(color='red')
-
-    # Adjust table properties
-    table.auto_set_font_size(False)
-    table.set_fontsize(font_size)  # Set font size
-    table.scale(1.5, 1.5)  # Scale the table
-
-    plt.axis('off')  # Hide axes
-    plt.tight_layout()
-
-    # Save the table as a high-quality image (PNG or PDF)
-    plt.savefig('table_image.png', dpi=300, bbox_inches='tight')  # Adjust DPI as needed
-
-    # Display the high-quality image
-    st.image('table_image.png')
-
-# Streamlit app
-st.sidebar.header('Select Table Dimensions')
-
-numBalls = st.sidebar.number_input('Enter the number of balls', min_value=9, step=1, value=9, max_value=12)
-numBoxes = st.sidebar.number_input('Enter the number of boxes', min_value=3, step=1, value=3, max_value=4)
-
-st.sidebar.header('Select Font Family')
-
-selected_font = st.sidebar.selectbox('Choose a font', ['Arial', 'Helvetica', 'Roboto', 'Open Sans', 'Lato', 'PT Sans', 'Nunito'])
+numBalls = st.sidebar.number_input('Enter the number of balls', min_value=3, step=1, value=5, max_value=12)
+numBoxes = st.sidebar.number_input('Enter the number of boxes', min_value=3, step=1, value=3, max_value=6)
 
 # Button to display the table image when clicked
 if st.sidebar.button('Display Table'):
-    display_table_image(selected_font, numBalls, numBoxes)
+
+    # Assuming 'image_filename' is the path to your image file
+    image_filename = f"balls_boxes/balls_{numBalls:02d}_boxes_{numBoxes:02d}.png"
+    
+    # Function to encode the image into base64
+    def get_base64_of_bin_file(bin_file):
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+
+    # Encode the image file into base64
+    image_base64 = get_base64_of_bin_file(image_filename)
+
+    # Display the image using st.markdown
+    st.markdown(f'<img src="data:image/png;base64,{image_base64}" alt="Image" style="width: 1200px;">', unsafe_allow_html=True)
+   
+    st.write(f"# Distribution of {numBalls} balls into {numBoxes} boxes")
+    st.write(f"# No Box is empty")
+    st.write(f"# There are four cases")
+    
     st.write(f"# Distribution of {numBalls} distinct balls into {numBoxes} distinct boxes")
+    
+    st.write(f"## Solution 01 - Answer using PIE")
+    myString = f"\\text{{T}}\\left({{{numBalls}}},{{{numBoxes}}}\\right)={{{numBoxes}}}^{{{numBalls}}}"
+    curlyString = ''
+    
+    for count_case in range(0,numBoxes-1):
+        print(count_case)
+        if numBoxes- count_case - 1 > 1:
+            if count_case == 0:
+                curlyString += f"\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
+            elif count_case % 2 == 0:
+                curlyString += f"+\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
+            else:
+                curlyString += f"-\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
+        else:
+            if count_case == 0:
+                curlyString += f"\\binom{{{numBoxes}}}{{{count_case+1}}}"
+            elif count_case % 2 == 0:
+                curlyString += f"+\\binom{{{numBoxes}}}{{{count_case+1}}}"
+            else:
+                curlyString += f"-\\binom{{{numBoxes}}}{{{count_case+1}}}"
+            
+
+    st.latex(myString+r"-\left\{"+curlyString+r"\right\}")
+    st.write(f"## Solution 02 - Using Recursion")
+    myString = f"\\text{{T}}\\left({{n}},{{k}}\\right)={{k}}\\left(\\text{{T}}\\left({{n-1}},{{k-1}}\\right)"+\
+    f"+\\text{{T}}\\left({{n-1}},{{k}}\\right)\\right)"
+
+    st.latex(myString)
+    st.image('grid_figure_high_res.png')
+    myString = f"\\text{{T}}\\left({{5}},{{3}}\\right)={{3}}\\left(\\text{{T}}\\left({{4}},{{2}}\\right)"+\
+    f"+\\text{{T}}\\left({{4}},{{3}}\\right)\\right)=3\\left(14+36\\right)=150"
+    st.latex(myString)
+    
+    myString = r"\text{T}\left(5, 3\right):\
+    \\\text{Think of it as the number of 5-letter words from } \{A, B, C\} \text{ with no missing letters.}\
+    \text{There are three choices for the first letter.}\
+    \\\text{After this, the remaining four letters must be filled in, and the first letter does not have to be used again. There are two cases:}\
+    \\\left(a\right)\text{If the letter used at the first position does not occur again, then the word can be completed in T}\left(4,2\right).\
+    \\\left(b\right)\text{If the letter used at the first position does occur again, then the number of ways to complete the word is T}\left(4,3\right)."
+    st.latex(myString)
+    
+    myString = r"A|B|C|A|A\text{ This represents ball 1, 4 and 5 goes to Box 1, ball 2 goes to Box 2 and ball 3 goes to Box 3.}"
+    st.latex(myString)
+
+    st.image('grid_figure_high_res_small.png')
+    
+    st.write(f"## Solution 03 - Case Work")
     for count_case, case in enumerate(partitions(numBalls,numBoxes)):
+        print(case)
         case_number = f"Case - {count_case + 1:02}"
-        st.write(f"## {case_number}")
+        st.write(f"### {case_number}")
         st.latex(description(case))
+        st.image(f'all_images/all_permutations/image_{numBalls:02d}_{numBoxes:02d}_{count_case:02d}_001.png',width=450)
+    
+    st.write(f"# Distribution of {numBalls} identical balls into {numBoxes} distinct boxes")
+    myString = ''
+    for count_case in range(1,numBoxes+1):
+        myString += f"x_{count_case}+"
+    myString = myString[:-1] + f"={{{numBalls}}} \\text{{ with }} x\\geq{{{1}}}" + \
+    f"\\\\ \\text{{The answer is }}\\binom{{{numBalls-1}}}{{{numBoxes-1}}}" 
+    st.latex(myString) 
