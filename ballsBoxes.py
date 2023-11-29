@@ -126,87 +126,97 @@ numBalls = st.sidebar.number_input('Enter the number of balls', min_value=3, ste
 numBoxes = st.sidebar.number_input('Enter the number of boxes', min_value=3, step=1, value=3, max_value=6)
 
 # Button to display the table image when clicked
+def show(numBalls,numBoxes):
+    
+    if numBalls < numBoxes:
+        st.write(f"One will not be able to distribute {numBalls} balls into {numBoxes} boxes, with the condition that no box is empty.")
+    else:
+        
+        
+        
+        st.write(f"# Distribution of {numBalls} balls into {numBoxes} boxes")
+        st.write(f"# No Box is empty")
+        image_filename = f"balls_boxes/balls_{numBalls:02d}_boxes_{numBoxes:02d}.png"
+        
+        def get_base64_of_bin_file(bin_file):
+            with open(bin_file, 'rb') as f:
+                data = f.read()
+            return base64.b64encode(data).decode()
+
+        # Encode the image file into base64
+        image_base64 = get_base64_of_bin_file(image_filename)
+
+        # Display the image using st.markdown
+        st.markdown(f'<img src="data:image/png;base64,{image_base64}" alt="Image" style="width: 1200px;">', unsafe_allow_html=True)
+
+        
+        
+        st.write(f"# There are four cases")
+
+        st.write(f"# {str(1).zfill(2)}. Distribution of {numBalls} distinct balls into {numBoxes} distinct boxes")
+
+        st.write(f"## Solution 01 - Answer using PIE")
+        myString = f"\\text{{T}}\\left({{{numBalls}}},{{{numBoxes}}}\\right)={{{numBoxes}}}^{{{numBalls}}}"
+        curlyString = ''
+
+        for count_case in range(0,numBoxes-1):
+            print(count_case)
+            if numBoxes- count_case - 1 > 1:
+                if count_case == 0:
+                    curlyString += f"\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
+                elif count_case % 2 == 0:
+                    curlyString += f"+\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
+                else:
+                    curlyString += f"-\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
+            else:
+                if count_case == 0:
+                    curlyString += f"\\binom{{{numBoxes}}}{{{count_case+1}}}"
+                elif count_case % 2 == 0:
+                    curlyString += f"+\\binom{{{numBoxes}}}{{{count_case+1}}}"
+                else:
+                    curlyString += f"-\\binom{{{numBoxes}}}{{{count_case+1}}}"
+
+
+        st.latex(myString+r"-\left\{"+curlyString+r"\right\}")
+        st.write(f"## Solution 02 - Using Recursion")
+        myString = f"\\text{{T}}\\left({{n}},{{k}}\\right)={{k}}\\left(\\text{{T}}\\left({{n-1}},{{k-1}}\\right)"+\
+        f"+\\text{{T}}\\left({{n-1}},{{k}}\\right)\\right)"
+
+        st.latex(myString)
+        st.image('grid_figure_high_res.png')
+        myString = f"\\text{{T}}\\left({{5}},{{3}}\\right)={{3}}\\left(\\text{{T}}\\left({{4}},{{2}}\\right)"+\
+        f"+\\text{{T}}\\left({{4}},{{3}}\\right)\\right)=3\\left(14+36\\right)=150"
+        st.latex(myString)
+
+        myString = r"\text{T}\left(5, 3\right):\
+        \\\text{Think of it as the number of 5-letter words from } \{A, B, C\} \text{ with no missing letters.}\
+        \text{There are three choices for the first letter.}\
+        \\\text{After this, the remaining four letters must be filled in, and the first letter does not have to be used again. There are two cases:}\
+        \\\left(a\right)\text{If the letter used at the first position does not occur again, then the word can be completed in T}\left(4,2\right).\
+        \\\left(b\right)\text{If the letter used at the first position does occur again, then the number of ways to complete the word is T}\left(4,3\right)."
+        st.latex(myString)
+
+        myString = r"A|B|C|A|A\text{ This represents ball 1, 4 and 5 goes to Box 1, ball 2 goes to Box 2 and ball 3 goes to Box 3.}"
+        st.latex(myString)
+
+        st.image('grid_figure_high_res_small.png')
+
+        st.write(f"## Solution 03 - Case Work")
+        for count_case, case in enumerate(partitions(numBalls,numBoxes)):
+            print(case)
+            case_number = f"Case - {count_case + 1:02}"
+            st.write(f"### {case_number}")
+            st.latex(description(case))
+            st.image(f'all_images/all_permutations/image_{numBalls:02d}_{numBoxes:02d}_{count_case:02d}_001.png',width=450)
+
+        st.write(f"# {str(2).zfill(2)}. Distribution of {numBalls} identical balls into {numBoxes} distinct boxes")
+        myString = ''
+        for count_case in range(1,numBoxes+1):
+            myString += f"x_{count_case}+"
+        myString = myString[:-1] + f"={{{numBalls}}} \\text{{ with }} x\\geq{{{1}}}" + \
+        f"\\\\ \\text{{The answer is }}\\binom{{{numBalls-1}}}{{{numBoxes-1}}}" 
+        st.latex(myString) 
+        
 if st.sidebar.button('Display Table'):
-
-    # Assuming 'image_filename' is the path to your image file
-    image_filename = f"balls_boxes/balls_{numBalls:02d}_boxes_{numBoxes:02d}.png"
+    show(numBalls,numBoxes)
     
-    # Function to encode the image into base64
-    def get_base64_of_bin_file(bin_file):
-        with open(bin_file, 'rb') as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
-
-    # Encode the image file into base64
-    image_base64 = get_base64_of_bin_file(image_filename)
-
-    # Display the image using st.markdown
-    st.markdown(f'<img src="data:image/png;base64,{image_base64}" alt="Image" style="width: 1200px;">', unsafe_allow_html=True)
-   
-    st.write(f"# Distribution of {numBalls} balls into {numBoxes} boxes")
-    st.write(f"# No Box is empty")
-    st.write(f"# There are four cases")
-    
-    st.write(f"# Distribution of {numBalls} distinct balls into {numBoxes} distinct boxes")
-    
-    st.write(f"## Solution 01 - Answer using PIE")
-    myString = f"\\text{{T}}\\left({{{numBalls}}},{{{numBoxes}}}\\right)={{{numBoxes}}}^{{{numBalls}}}"
-    curlyString = ''
-    
-    for count_case in range(0,numBoxes-1):
-        print(count_case)
-        if numBoxes- count_case - 1 > 1:
-            if count_case == 0:
-                curlyString += f"\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
-            elif count_case % 2 == 0:
-                curlyString += f"+\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
-            else:
-                curlyString += f"-\\binom{{{numBoxes}}}{{{count_case+1}}}{{{numBoxes-count_case-1}}}^{{{numBalls}}}"
-        else:
-            if count_case == 0:
-                curlyString += f"\\binom{{{numBoxes}}}{{{count_case+1}}}"
-            elif count_case % 2 == 0:
-                curlyString += f"+\\binom{{{numBoxes}}}{{{count_case+1}}}"
-            else:
-                curlyString += f"-\\binom{{{numBoxes}}}{{{count_case+1}}}"
-            
-
-    st.latex(myString+r"-\left\{"+curlyString+r"\right\}")
-    st.write(f"## Solution 02 - Using Recursion")
-    myString = f"\\text{{T}}\\left({{n}},{{k}}\\right)={{k}}\\left(\\text{{T}}\\left({{n-1}},{{k-1}}\\right)"+\
-    f"+\\text{{T}}\\left({{n-1}},{{k}}\\right)\\right)"
-
-    st.latex(myString)
-    st.image('grid_figure_high_res.png')
-    myString = f"\\text{{T}}\\left({{5}},{{3}}\\right)={{3}}\\left(\\text{{T}}\\left({{4}},{{2}}\\right)"+\
-    f"+\\text{{T}}\\left({{4}},{{3}}\\right)\\right)=3\\left(14+36\\right)=150"
-    st.latex(myString)
-    
-    myString = r"\text{T}\left(5, 3\right):\
-    \\\text{Think of it as the number of 5-letter words from } \{A, B, C\} \text{ with no missing letters.}\
-    \text{There are three choices for the first letter.}\
-    \\\text{After this, the remaining four letters must be filled in, and the first letter does not have to be used again. There are two cases:}\
-    \\\left(a\right)\text{If the letter used at the first position does not occur again, then the word can be completed in T}\left(4,2\right).\
-    \\\left(b\right)\text{If the letter used at the first position does occur again, then the number of ways to complete the word is T}\left(4,3\right)."
-    st.latex(myString)
-    
-    myString = r"A|B|C|A|A\text{ This represents ball 1, 4 and 5 goes to Box 1, ball 2 goes to Box 2 and ball 3 goes to Box 3.}"
-    st.latex(myString)
-
-    st.image('grid_figure_high_res_small.png')
-    
-    st.write(f"## Solution 03 - Case Work")
-    for count_case, case in enumerate(partitions(numBalls,numBoxes)):
-        print(case)
-        case_number = f"Case - {count_case + 1:02}"
-        st.write(f"### {case_number}")
-        st.latex(description(case))
-        st.image(f'all_images/all_permutations/image_{numBalls:02d}_{numBoxes:02d}_{count_case:02d}_001.png',width=450)
-    
-    st.write(f"# Distribution of {numBalls} identical balls into {numBoxes} distinct boxes")
-    myString = ''
-    for count_case in range(1,numBoxes+1):
-        myString += f"x_{count_case}+"
-    myString = myString[:-1] + f"={{{numBalls}}} \\text{{ with }} x\\geq{{{1}}}" + \
-    f"\\\\ \\text{{The answer is }}\\binom{{{numBalls-1}}}{{{numBoxes-1}}}" 
-    st.latex(myString) 
