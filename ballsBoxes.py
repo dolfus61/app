@@ -236,5 +236,9 @@ else:
         "<p style='font-family: \"Verdana\", sans-serif; font-size:18px;'>Initiative taken by ABM</p>",
         unsafe_allow_html=True,
     )
+    st.markdown(
+        "<p style='font-family: \"Verdana\", sans-serif; font-size:12px;'>Click on the arrow(top-left) to open the sidebar(applicable if on phone)</p>",
+        unsafe_allow_html=True,
+    )
     
     
