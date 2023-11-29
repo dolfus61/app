@@ -131,6 +131,9 @@ def show(numBalls,numBoxes):
     if numBalls < numBoxes:
         st.write(f"One will not be able to distribute {numBalls} balls into {numBoxes} boxes, with the condition that no box is empty.")
     else:
+        
+        
+        
         st.write(f"# Distribution of {numBalls} balls into {numBoxes} boxes")
         st.write(f"# No Box is empty")
         image_filename = f"balls_boxes/balls_{numBalls:02d}_boxes_{numBoxes:02d}.png"
@@ -213,7 +216,25 @@ def show(numBalls,numBoxes):
         myString = myString[:-1] + f"={{{numBalls}}} \\text{{ with }} x\\geq{{{1}}}" + \
         f"\\\\ \\text{{The answer is }}\\binom{{{numBalls-1}}}{{{numBoxes-1}}}" 
         st.latex(myString) 
-        
+
+# Display some initial content
+
+
+
+
 if st.sidebar.button('Display Table'):
+    
     show(numBalls,numBoxes)
+else:
+    st.write(f"# Distribution of balls and boxes")
+
+    st.write(f"## 1 - Choose the number of balls and number of boxes")
+
+    st.write(f"## 2 - Click on Display Table")
+
+    st.markdown(
+        "<p style='font-family: \"Verdana\", sans-serif; font-size:18px;'>Initiative taken by ABM</p>",
+        unsafe_allow_html=True,
+    )
+    
     
