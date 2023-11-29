@@ -131,9 +131,6 @@ def show(numBalls,numBoxes):
     if numBalls < numBoxes:
         st.write(f"One will not be able to distribute {numBalls} balls into {numBoxes} boxes, with the condition that no box is empty.")
     else:
-        
-        
-        
         st.write(f"# Distribution of {numBalls} balls into {numBoxes} boxes")
         st.write(f"# No Box is empty")
         image_filename = f"balls_boxes/balls_{numBalls:02d}_boxes_{numBoxes:02d}.png"
