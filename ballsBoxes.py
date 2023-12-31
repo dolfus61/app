@@ -5,6 +5,7 @@ from math import factorial
 from PIL import Image
 from itertools import permutations
 import base64
+import numpy as np
 
 st.set_page_config(layout="wide")
 
